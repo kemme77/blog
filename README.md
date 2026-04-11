@@ -24,12 +24,12 @@
 
 - Login Funktion zum Erstellen, Bearbeiten und Löschen der Blog-Posts
 
-Next Steps:
-
 - Auth.js + Prisma Adapter eingebaut
 - User- und Session-Modelle ergänzt
 - Admin-Login auf DB-User umgestellt
-- Rollenmodell (Admin/Editor) hinzugefügt
+- Rollenmodell (Admin) hinzugefügt
+- Rate Limiting 
 
-Optional als nächster Schritt:
-- Rechte für Admin vs. Editor genauer festlegen
+Next Steps:
+
+- Erstellen von Accounts

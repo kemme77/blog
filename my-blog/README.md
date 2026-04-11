@@ -29,9 +29,13 @@ docker compose up -d
 2. Ensure your local env file exists (`.env.local`):
 
 ```env
-DATABASE_URL="mysql://kemme:Password123@localhost:3306/app-infrastructure"
-MYSQL_ROOT_PASSWORD="Password123"
-MYSQL_PASSWORD="Password123"
+DATABASE_URL="mysql://<db-user>:<db-password>@localhost:3306/app-infrastructure"
+MYSQL_ROOT_PASSWORD="<strong-root-password>"
+MYSQL_PASSWORD="<strong-app-password>"
+BLOG_ADMIN_USERNAME="<username>"
+BLOG_ADMIN_PASSWORD_HASH="\$2b\$12\$..."
+BLOG_ADMIN_SECRET="<long-random-secret>"
+NEXTAUTH_URL="http://localhost:3000"
 ```
 
 `docker compose up -d` reads the MySQL credentials from `.env.local`, so the password is no longer hardcoded in `docker-compose.yml`.

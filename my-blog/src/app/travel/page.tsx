@@ -50,6 +50,7 @@ export default async function TravelPage() {
               src={travelPhoto}
               alt="Featured travel photo placeholder"
               fill
+              sizes="(max-width: 1024px) 100vw, 70vw"
               className="object-cover"
               priority
             />
@@ -124,7 +125,13 @@ export default async function TravelPage() {
             <Link key={post.id} href={`/blog/${post.slug}`} className="block">
               <Card className="h-full overflow-hidden transition-colors hover:bg-(--earth-stone)/30">
                 <div className="relative aspect-16/10 w-full bg-(--earth-stone)">
-                  <Image src={travelPhoto} alt={post.photoLabel ?? "Travel image"} fill className="object-cover" />
+                  <Image
+                    src={travelPhoto}
+                    alt={post.photoLabel ?? "Travel image"}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover"
+                  />
                 </div>
               <CardHeader>
                 <div className="flex flex-wrap items-center justify-between gap-3">

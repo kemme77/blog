@@ -132,7 +132,13 @@ export default async function BlogPostPage({ params }: { params: Params }) {
       {post.category === "Travel" ? (
         <Card className="overflow-hidden">
           <div className="relative aspect-video w-full bg-(--earth-stone)">
-            <Image src={travelPhoto} alt={post.photoLabel ?? "Travel post image"} fill className="object-cover" />
+            <Image
+              src={travelPhoto}
+              alt={post.photoLabel ?? "Travel post image"}
+              fill
+              sizes="(max-width: 768px) 100vw, 1200px"
+              className="object-cover"
+            />
           </div>
           <CardHeader>
             <CardTitle>{post.photoLabel ?? "Photo highlight"}</CardTitle>

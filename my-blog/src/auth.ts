@@ -4,6 +4,12 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import { compare } from "bcryptjs"
 
 import { prisma } from "@/lib/prisma"
+import {
+  checkRateLimit,
+  recordFailedAttempt,
+  resetRateLimit,
+  getClientIp,
+} from "@/lib/rateLimit"
 
 function getAdminUsername(): string {
   const username = process.env.BLOG_ADMIN_USERNAME?.trim()
@@ -25,6 +31,7 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
+    maxAge: 24 * 60 * 60, // 24 hours
   },
   secret: process.env.BLOG_ADMIN_SECRET,
   pages: {
@@ -39,8 +46,22 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         const username = String(credentials?.username ?? "").trim()
         const password = String(credentials?.password ?? "")
+        const ipAddress = getClientIp(credentials)
 
         if (!username || !password) {
+          if (username) {
+            recordFailedAttempt(ipAddress)
+          }
+          return null
+        }
+
+        // Check rate limit before validating credentials
+        try {
+          checkRateLimit(ipAddress)
+        } catch (error) {
+          console.warn(
+            `[rate-limit] ${username}@${ipAddress}: ${(error as Error).message}`
+          )
           return null
         }
 
@@ -49,11 +70,13 @@ export const authOptions: NextAuthOptions = {
 
         // Only one role/user exists: admin from environment variables.
         if (username !== adminUsername) {
+          recordFailedAttempt(ipAddress)
           return null
         }
 
         const passwordMatches = await compare(password, adminPasswordHash)
         if (!passwordMatches) {
+          recordFailedAttempt(ipAddress)
           return null
         }
 
@@ -88,6 +111,9 @@ export const authOptions: NextAuthOptions = {
         if (!user?.passwordHash) {
           return null
         }
+
+        // Rate limit check passed, reset counter on successful login
+        resetRateLimit(ipAddress)
 
         return {
           id: user.id,

@@ -16,16 +16,49 @@ export default function LoginForm({ returnTo }: LoginFormProps) {
   const [error, setError] = useState<string | null>(null)
   const [pending, setPending] = useState(false)
 
+  async function getRateLimitStatus(): Promise<{ blocked: boolean; resetWaitSeconds: number } | null> {
+    try {
+      const rateLimitRes = await fetch("/api/auth/ratelimit-check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      })
+
+      if (!rateLimitRes.ok) {
+        return null
+      }
+
+      const data = await rateLimitRes.json()
+      return {
+        blocked: Boolean(data?.blocked),
+        resetWaitSeconds: Number(data?.resetWaitSeconds ?? 0),
+      }
+    } catch {
+      return null
+    }
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
     const formData = new FormData(event.currentTarget)
+    const username = String(formData.get("username") ?? "")
 
     setPending(true)
     setError(null)
 
+    // Avoid calling next-auth endpoints when we already know this client is blocked.
+    const preCheck = await getRateLimitStatus()
+    if (preCheck?.blocked) {
+      setPending(false)
+      setError(
+        `Too many login attempts. Please try again in ${preCheck.resetWaitSeconds} seconds.`
+      )
+      return
+    }
+
     const result = await signIn("credentials", {
-      username: String(formData.get("username") ?? ""),
+      username,
       password: String(formData.get("password") ?? ""),
       redirect: false,
       callbackUrl: returnTo,
@@ -34,7 +67,15 @@ export default function LoginForm({ returnTo }: LoginFormProps) {
     setPending(false)
 
     if (result?.error) {
-      setError("Invalid credentials. Please try again.")
+      // Re-check after a failed attempt so the UI can switch to the rate-limit message exactly when threshold is hit.
+      const postCheck = await getRateLimitStatus()
+      if (postCheck?.blocked) {
+        setError(
+          `Too many login attempts. Please try again in ${postCheck.resetWaitSeconds} seconds.`
+        )
+      } else {
+        setError("Invalid credentials. Please try again.")
+      }
       return
     }
 
