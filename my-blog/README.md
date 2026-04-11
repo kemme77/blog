@@ -68,6 +68,41 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This app uses Next.js + Prisma + MySQL, so deployment needs a managed MySQL database (not local Docker MySQL).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Create a managed MySQL database (for example Neon, PlanetScale, Railway, Aiven, or cloud-hosted MySQL).
+2. Run schema migration against that production database:
+
+```bash
+npm run prisma:generate
+npx prisma db push
+```
+
+3. Push your repository to GitHub.
+4. In Vercel, create a new project and select this repository.
+5. Set **Root Directory** to `my-blog`.
+6. In **Settings -> Environment Variables**, add:
+
+```env
+DATABASE_URL="mysql://<user>:<password>@<host>:<port>/<database>"
+BLOG_ADMIN_USERNAME="<your-admin-username>"
+BLOG_ADMIN_PASSWORD_HASH="<bcrypt-hash>"
+BLOG_ADMIN_SECRET="<long-random-secret>"
+NEXTAUTH_URL="https://<your-vercel-domain>"
+```
+
+7. Keep the default build command (`npm run build`) and deploy.
+
+If you want CLI deployment:
+
+```bash
+cd my-blog
+npm i -g vercel
+vercel
+vercel --prod
+```
+
+Notes:
+- `DATABASE_URL` is required at build time because Prisma config reads it.
+- Keep `NEXTAUTH_URL` aligned with your final Vercel domain.
+- Use a real bcrypt hash for `BLOG_ADMIN_PASSWORD_HASH`.

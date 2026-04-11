@@ -107,31 +107,36 @@ async function bootstrapPostsIfEmpty(): Promise<void> {
   }
 
   bootstrapPromise = (async () => {
-    const count = await prisma.blogPost.count()
-    if (count > 0) {
-      return
-    }
+    try {
+      const count = await prisma.blogPost.count()
+      if (count > 0) {
+        return
+      }
 
-    const files = await readdir(POSTS_SEED_DIR)
-    const postFiles = files.filter((file) => file.endsWith(".json"))
+      const files = await readdir(POSTS_SEED_DIR)
+      const postFiles = files.filter((file) => file.endsWith(".json"))
 
-    for (const file of postFiles) {
-      const raw = await readFile(path.join(POSTS_SEED_DIR, file), "utf-8")
-      const seed = JSON.parse(raw) as BlogPostFile
+      for (const file of postFiles) {
+        const raw = await readFile(path.join(POSTS_SEED_DIR, file), "utf-8")
+        const seed = JSON.parse(raw) as BlogPostFile
 
-      await prisma.blogPost.create({
-        data: {
-          title: seed.title,
-          slug: seed.slug,
-          category: seed.category,
-          summary: seed.summary,
-          content: seed.content,
-          tags: seed.tags,
-          route: seed.route,
-          rating: seed.rating,
-          photoLabel: seed.photoLabel,
-        },
-      })
+        await prisma.blogPost.create({
+          data: {
+            title: seed.title,
+            slug: seed.slug,
+            category: seed.category,
+            summary: seed.summary,
+            content: seed.content,
+            tags: seed.tags,
+            route: seed.route,
+            rating: seed.rating,
+            photoLabel: seed.photoLabel,
+          },
+        })
+      }
+    } catch (error) {
+      // Do not fail page rendering if seeding or DB access is temporarily unavailable.
+      console.error("[posts] Bootstrap failed:", error)
     }
   })()
 
@@ -139,46 +144,61 @@ async function bootstrapPostsIfEmpty(): Promise<void> {
 }
 
 export async function getAllPosts(): Promise<BlogPost[]> {
-  await bootstrapPostsIfEmpty()
+  try {
+    await bootstrapPostsIfEmpty()
 
-  const posts = await prisma.blogPost.findMany({
-    orderBy: {
-      updatedAt: "desc",
-    },
-  })
+    const posts = await prisma.blogPost.findMany({
+      orderBy: {
+        updatedAt: "desc",
+      },
+    })
 
-  return posts.map((post: Parameters<typeof mapDbPost>[0]) => mapDbPost(post))
+    return posts.map((post: Parameters<typeof mapDbPost>[0]) => mapDbPost(post))
+  } catch (error) {
+    console.error("[posts] Failed to load all posts:", error)
+    return []
+  }
 }
 
 export async function getPostsByCategory(category: BlogCategory): Promise<BlogPost[]> {
-  await bootstrapPostsIfEmpty()
+  try {
+    await bootstrapPostsIfEmpty()
 
-  const posts = await prisma.blogPost.findMany({
-    where: {
-      category,
-    },
-    orderBy: {
-      updatedAt: "desc",
-    },
-  })
+    const posts = await prisma.blogPost.findMany({
+      where: {
+        category,
+      },
+      orderBy: {
+        updatedAt: "desc",
+      },
+    })
 
-  return posts.map((post: Parameters<typeof mapDbPost>[0]) => mapDbPost(post))
+    return posts.map((post: Parameters<typeof mapDbPost>[0]) => mapDbPost(post))
+  } catch (error) {
+    console.error(`[posts] Failed to load category ${category}:`, error)
+    return []
+  }
 }
 
 export async function getPostBySlug(slug: string): Promise<BlogPost | undefined> {
-  await bootstrapPostsIfEmpty()
+  try {
+    await bootstrapPostsIfEmpty()
 
-  const post = await prisma.blogPost.findUnique({
-    where: {
-      slug,
-    },
-  })
+    const post = await prisma.blogPost.findUnique({
+      where: {
+        slug,
+      },
+    })
 
-  if (!post) {
+    if (!post) {
+      return undefined
+    }
+
+    return mapDbPost(post)
+  } catch (error) {
+    console.error(`[posts] Failed to load slug ${slug}:`, error)
     return undefined
   }
-
-  return mapDbPost(post)
 }
 
 export async function createPost(input: PostInput): Promise<string> {
