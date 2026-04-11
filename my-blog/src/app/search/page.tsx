@@ -21,7 +21,7 @@ export default async function SearchPage({
 }) {
   const params = await Promise.resolve(searchParams)
   const query = (params.q ?? "").toString()
-  const results = searchContent(query)
+  const results = await searchContent(query)
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 pb-20 pt-12 md:px-10">
@@ -78,20 +78,20 @@ export default async function SearchPage({
       {results.length > 0 ? (
         <section className="grid gap-4">
           {results.map((result) => (
-            <Card key={result.id}>
-              <CardHeader>
-                <div className="flex items-center justify-between gap-3">
-                  <CardTitle className="text-xl">{result.title}</CardTitle>
-                  <Badge className="text-[11px]">{result.category}</Badge>
-                </div>
-                <CardDescription>{result.excerpt}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button asChild variant="outline" className="border-(--earth-border) bg-transparent hover:bg-(--earth-stone)">
-                  <Link href={result.href}>Open in {result.category}</Link>
-                </Button>
-              </CardContent>
-            </Card>
+            <Link key={result.id} href={result.href} className="block">
+              <Card className="transition-colors hover:bg-(--earth-stone)/30">
+                <CardHeader>
+                  <div className="flex items-center justify-between gap-3">
+                    <CardTitle className="text-xl">{result.title}</CardTitle>
+                    <Badge className="text-[11px]">{result.category}</Badge>
+                  </div>
+                  <CardDescription>{result.excerpt}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-(--earth-muted)">Open full post</p>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </section>
       ) : null}

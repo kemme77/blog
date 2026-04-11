@@ -19,3 +19,7 @@
 - UI Komponenten von Shadcn UI
 
 - Suchfunktion nur für Blogbeiträge
+
+- Blog-Posts sind anklickbar, eigene Seite zum Post öffnet sich
+
+- Login Funktion zum Erstellen, Bearbeiten und Löschen der Blog-Posts

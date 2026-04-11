@@ -7,29 +7,37 @@ export type SearchItem = {
   terms: string[]
 }
 
-import { blogPosts } from "@/lib/blog-posts"
+import { getAllPosts } from "@/lib/blog-posts"
 
-export const searchItems: SearchItem[] = blogPosts.map((post) => ({
-  id: post.id,
-  title: post.title,
-  href: `/${post.category.toLowerCase()}`,
-  category: post.category,
-  excerpt: post.summary,
-  terms: [
-    ...post.tags,
-    post.slug,
-    post.route ?? "",
-    post.photoLabel ?? "",
-    post.rating ? `rating ${post.rating}` : "",
-  ].filter(Boolean),
-}))
+export async function getSearchItems(): Promise<SearchItem[]> {
+  const posts = await getAllPosts()
 
-export function searchContent(query: string): SearchItem[] {
+  return posts.map((post) => ({
+    id: post.id,
+    title: post.title,
+    href: `/blog/${post.slug}`,
+    category: post.category,
+    excerpt: post.summary,
+    terms: [
+      ...post.tags,
+      post.slug,
+      post.route ?? "",
+      post.photoLabel ?? "",
+      post.rating ? `rating ${post.rating}` : "",
+      post.createdAt,
+      post.updatedAt,
+    ].filter(Boolean),
+  }))
+}
+
+export async function searchContent(query: string): Promise<SearchItem[]> {
   const q = query.trim().toLowerCase()
 
   if (!q) {
     return []
   }
+
+  const searchItems = await getSearchItems()
 
   return searchItems
     .map((item) => {

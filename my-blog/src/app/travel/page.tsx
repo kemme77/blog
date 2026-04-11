@@ -20,8 +20,8 @@ const upcomingTrips = [
   { destination: "Mountain region", focus: "Hiking trail and photo points", period: "Autumn 2026" },
 ]
 
-export default function TravelPage() {
-  const posts = getPostsByCategory("Travel")
+export default async function TravelPage() {
+  const posts = await getPostsByCategory("Travel")
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 pb-20 pt-12 md:px-10">
@@ -43,7 +43,7 @@ export default function TravelPage() {
 
       <section className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
         <Card className="overflow-hidden">
-          <div className="relative aspect-[16/10] w-full bg-(--earth-stone)">
+          <div className="relative aspect-16/10 w-full bg-(--earth-stone)">
             <Image
               src={travelPhoto}
               alt="Featured travel photo placeholder"
@@ -112,24 +112,27 @@ export default function TravelPage() {
 
         <div className="grid gap-4 md:grid-cols-2">
           {posts.map((post) => (
-            <Card key={post.id} className="h-full overflow-hidden">
-              <div className="relative aspect-[16/10] w-full bg-(--earth-stone)">
-                <Image src={travelPhoto} alt={post.photoLabel ?? "Travel image"} fill className="object-cover" />
-              </div>
-            <CardHeader>
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <CardTitle className="text-xl">{post.title}</CardTitle>
-                <Badge className="text-[11px]">Travel Post</Badge>
-              </div>
-              <CardDescription>{post.summary}</CardDescription>
-            </CardHeader>
-              <CardContent className="space-y-2 text-sm text-(--earth-muted)">
-                <p className="inline-flex items-center gap-1"><CalendarDays className="size-4" />{post.date}</p>
-                <p className="inline-flex items-center gap-1"><Route className="size-4" />{post.route}</p>
-                <p className="inline-flex items-center gap-1"><Star className="size-4" />Rating: {post.rating}/5</p>
-                <p className="rounded-full border border-(--earth-border) px-2 py-0.5">{post.tags.join(" • ")}</p>
-              </CardContent>
-            </Card>
+            <Link key={post.id} href={`/blog/${post.slug}`} className="block">
+              <Card className="h-full overflow-hidden transition-colors hover:bg-(--earth-stone)/30">
+                <div className="relative aspect-16/10 w-full bg-(--earth-stone)">
+                  <Image src={travelPhoto} alt={post.photoLabel ?? "Travel image"} fill className="object-cover" />
+                </div>
+              <CardHeader>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <CardTitle className="text-xl">{post.title}</CardTitle>
+                  <Badge className="text-[11px]">Travel Post</Badge>
+                </div>
+                <CardDescription>{post.summary}</CardDescription>
+              </CardHeader>
+                <CardContent className="space-y-2 text-sm text-(--earth-muted)">
+                  <p className="inline-flex items-center gap-1"><CalendarDays className="size-4" />Created: {post.createdAt}</p>
+                  <p className="rounded-full border border-(--earth-border) px-2 py-0.5">Updated: {post.updatedAt}</p>
+                  <p className="inline-flex items-center gap-1"><Route className="size-4" />{post.route}</p>
+                  <p className="inline-flex items-center gap-1"><Star className="size-4" />Rating: {post.rating}/5</p>
+                  <p className="rounded-full border border-(--earth-border) px-2 py-0.5">{post.tags.join(" • ")}</p>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       </section>

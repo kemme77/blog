@@ -27,8 +27,8 @@ const milestones = [
   },
 ]
 
-export default function CareerPage() {
-  const posts = getPostsByCategory("Career")
+export default async function CareerPage() {
+  const posts = await getPostsByCategory("Career")
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 pb-20 pt-12 md:px-10">
@@ -75,19 +75,22 @@ export default function CareerPage() {
 
         <div className="grid gap-4">
           {posts.map((post) => (
-            <Card key={post.id}>
-              <CardHeader>
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <CardTitle className="text-xl">{post.title}</CardTitle>
-                  <Badge className="text-[11px]">Career Post</Badge>
-                </div>
-                <CardDescription>{post.summary}</CardDescription>
-              </CardHeader>
-              <CardContent className="flex flex-wrap items-center gap-3 text-sm text-(--earth-muted)">
-                <span className="inline-flex items-center gap-1"><CalendarDays className="size-4" />{post.date}</span>
-                <span className="rounded-full border border-(--earth-border) px-2 py-0.5">{post.tags.join(" • ")}</span>
-              </CardContent>
-            </Card>
+            <Link key={post.id} href={`/blog/${post.slug}`} className="block">
+              <Card className="transition-colors hover:bg-(--earth-stone)/30">
+                <CardHeader>
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <CardTitle className="text-xl">{post.title}</CardTitle>
+                    <Badge className="text-[11px]">Career Post</Badge>
+                  </div>
+                  <CardDescription>{post.summary}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-wrap items-center gap-3 text-sm text-(--earth-muted)">
+                  <span className="inline-flex items-center gap-1"><CalendarDays className="size-4" />Created: {post.createdAt}</span>
+                  <span className="rounded-full border border-(--earth-border) px-2 py-0.5">Updated: {post.updatedAt}</span>
+                  <span className="rounded-full border border-(--earth-border) px-2 py-0.5">{post.tags.join(" • ")}</span>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       </section>
