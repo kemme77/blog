@@ -1,10 +1,10 @@
 # Kemme's-Blog
 
-## Designer-Notes;
+## Designer-Notes
 
 - Farben: Erd-Töne (Schwarz, Weiss, Braun, Grün, Grau)
-- Hintergrund: neutral (schwarz-weiss), dark-mode kompatibel
-- Vordergrund: Natur-Elemente (grün (bevorzugt), grau, braun/beige)
+-    Hintergrund: neutral (schwarz-weiss), dark-mode kompatibel
+-    Vordergrund: Natur-Elemente (grün (bevorzugt), grau, braun/beige)
 
 - Inhalt: Hobbys, Beruf, Reisen, evtl Steckbrief
 
