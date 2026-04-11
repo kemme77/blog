@@ -1,21 +1,85 @@
 import Image from "next/image"
 import Link from "next/link"
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import type { Metadata } from "next"
 import { ArrowLeft, CalendarDays, Route, Star, Tag } from "lucide-react"
+import { revalidatePath } from "next/cache"
 
 import travelPhoto from "@/images/EnkelTrick.png"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import { getCategoryPath, getPostBySlug } from "@/lib/blog-posts"
+import { Textarea } from "@/components/ui/textarea"
+import DeletePostForm from "@/components/DeletePostForm"
+import { isAdminAuthenticated } from "@/lib/admin-auth"
+import { getCategoryPath, getPostBySlug, type BlogCategory, updatePost } from "@/lib/blog-posts"
 
-type Params = Promise<{ slug: string }> | { slug: string }
+type Params = Promise<{ slug: string }>
+
+function parseList(raw: string): string[] {
+  return raw
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean)
+}
+
+function parseContent(raw: string): string[] {
+  return raw
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+}
+
+function readCategory(value: FormDataEntryValue | null): BlogCategory {
+  const category = String(value ?? "")
+  if (category === "Career" || category === "Hobbies" || category === "Travel") {
+    return category
+  }
+  return "Career"
+}
+
+async function updatePostAction(formData: FormData) {
+  "use server"
+
+  const authenticated = await isAdminAuthenticated()
+  if (!authenticated) {
+    redirect("/login")
+  }
+
+  const previousSlug = String(formData.get("previousSlug") ?? "")
+
+  await updatePost(previousSlug, {
+    title: String(formData.get("title") ?? ""),
+    category: readCategory(formData.get("category")),
+    summary: String(formData.get("summary") ?? ""),
+    content: parseContent(String(formData.get("content") ?? "")),
+    tags: parseList(String(formData.get("tags") ?? "")),
+    route: String(formData.get("route") ?? "") || undefined,
+    rating: formData.get("rating") ? Number(formData.get("rating")) : undefined,
+    photoLabel: String(formData.get("photoLabel") ?? "") || undefined,
+  })
+
+  const updated = await getPostBySlug(previousSlug)
+  const slug = updated?.slug ?? previousSlug
+
+  revalidatePath("/")
+  revalidatePath("/career")
+  revalidatePath("/hobbies")
+  revalidatePath("/travel")
+  revalidatePath("/search")
+  revalidatePath(`/blog/${previousSlug}`)
+  if (slug !== previousSlug) {
+    revalidatePath(`/blog/${slug}`)
+  }
+
+  redirect(`/blog/${slug}`)
+}
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-  const resolved = await Promise.resolve(params)
+  const resolved = await params
   const post = await getPostBySlug(resolved.slug)
 
   if (!post) {
@@ -31,8 +95,9 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 }
 
 export default async function BlogPostPage({ params }: { params: Params }) {
-  const resolved = await Promise.resolve(params)
+  const resolved = await params
   const post = await getPostBySlug(resolved.slug)
+  const isAuthenticated = await isAdminAuthenticated()
 
   if (!post) {
     notFound()
@@ -87,6 +152,34 @@ export default async function BlogPostPage({ params }: { params: Params }) {
           </p>
         ))}
       </article>
+
+      {isAuthenticated ? (
+        <section className="rounded-2xl border border-(--earth-border) bg-(--earth-panel) p-6 md:p-8">
+          <h2 className="text-2xl font-semibold text-(--earth-ink)">Edit this post</h2>
+          <p className="mt-2 text-sm text-(--earth-muted)">Changes are saved directly to your database.</p>
+
+          <form action={updatePostAction} className="mt-5 grid gap-3 md:grid-cols-2">
+            <input type="hidden" name="previousSlug" value={post.slug} />
+            <Input name="title" defaultValue={post.title} required />
+            <select name="category" defaultValue={post.category} className="h-9 rounded-md border border-(--earth-border) bg-(--earth-panel) px-3 text-sm text-(--earth-ink)">
+              <option>Career</option>
+              <option>Hobbies</option>
+              <option>Travel</option>
+            </select>
+            <Input name="summary" defaultValue={post.summary} className="md:col-span-2" required />
+            <Textarea name="content" defaultValue={post.content.join("\n")} className="md:col-span-2" required />
+            <Input name="tags" defaultValue={post.tags.join(", ")} className="md:col-span-2" required />
+            <Input name="route" defaultValue={post.route ?? ""} placeholder="Route (optional)" />
+            <Input name="rating" type="number" min="0" max="5" step="0.1" defaultValue={post.rating ?? ""} placeholder="Rating (optional)" />
+            <Input name="photoLabel" defaultValue={post.photoLabel ?? ""} className="md:col-span-2" placeholder="Photo label (optional)" />
+            <Button type="submit" className="md:col-span-2 bg-(--earth-forest) text-white hover:bg-(--earth-forest)/90">Save changes</Button>
+          </form>
+
+          <div className="mt-4">
+            <DeletePostForm slug={post.slug} category={post.category} returnTo={categoryPath} />
+          </div>
+        </section>
+      ) : null}
     </main>
   )
 }

@@ -20,6 +20,13 @@
 
 - Suchfunktion nur für Blogbeiträge
 
-- Blog-Posts sind anklickbar, eigene Seite zum Post öffnet sich
+- Blog-Posts sind anklickbar, eigene Seite zum Post öffnet sich, automatisches Datum wann erstellt und wann geändert
 
 - Login Funktion zum Erstellen, Bearbeiten und Löschen der Blog-Posts
+
+Next Steps:
+
+Auth.js + Prisma Adapter einbauen
+User- und Session-Modelle ergänzen
+Bestehenden Admin-Login auf DB-User umstellen
+Rollenmodell (Admin/Editor) hinzufügen

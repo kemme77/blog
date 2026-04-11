@@ -16,6 +16,35 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Database Setup (Prisma + MySQL)
+
+The blog posts are now stored in MySQL via Prisma.
+
+1. Start MySQL (from this project directory):
+
+```bash
+docker compose up -d
+```
+
+2. Ensure your local env file exists (`.env.local`):
+
+```env
+DATABASE_URL="mysql://kemme:Password123@localhost:3306/app-infrastructure"
+```
+
+3. Generate Prisma client and sync schema:
+
+```bash
+npm run prisma:generate
+npm run prisma:push
+```
+
+4. Start the app:
+
+```bash
+npm run dev
+```
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

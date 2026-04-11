@@ -5,11 +5,31 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+enum BlogCategory {
+  Career
+  Hobbies
+  Travel
+}
+
+model BlogPost {
+  id         String       @id @default(cuid())
+  title      String
+  slug       String       @unique
+  category   BlogCategory
+  summary    String       @db.Text
+  content    Json
+  tags       Json
+  route      String?      @db.Text
+  rating     Float?
+  photoLabel String?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
 }

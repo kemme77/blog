@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { isAdminAuthenticated } from "@/lib/admin-auth"
 import { getPostsByCategory } from "@/lib/blog-posts"
 
 export const metadata = {
@@ -28,6 +29,7 @@ const milestones = [
 ]
 
 export default async function CareerPage() {
+  const isAuthenticated = await isAdminAuthenticated()
   const posts = await getPostsByCategory("Career")
 
   return (
@@ -68,7 +70,14 @@ export default async function CareerPage() {
       <Separator />
 
       <section className="space-y-4">
-        <h2 className="text-3xl font-semibold tracking-tight text-(--earth-ink)">Career blog updates</h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-3xl font-semibold tracking-tight text-(--earth-ink)">Career blog updates</h2>
+          {isAuthenticated ? (
+            <Button asChild size="sm" className="bg-(--earth-forest) text-white hover:bg-(--earth-forest)/90">
+              <Link href="/create?category=Career">Create post</Link>
+            </Button>
+          ) : null}
+        </div>
         <p className="text-sm text-(--earth-muted)">
           Short updates about progress, goals, and changes in direction.
         </p>

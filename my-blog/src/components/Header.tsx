@@ -4,6 +4,7 @@ import { Search } from "lucide-react";
 import Container from "./Container";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { isAdminAuthenticated } from "@/lib/admin-auth";
 
 const navItems = [
   { label: "Career", href: "/career" },
@@ -12,7 +13,9 @@ const navItems = [
   { label: "Profile", href: "/profile" },
 ];
 
-const Header = () => {
+const Header = async () => {
+  const isAuthenticated = await isAdminAuthenticated()
+
   return (
     <header className="sticky top-0 z-50 border-b border-(--earth-border) bg-(--earth-bg)/95 backdrop-blur-sm">
       <Container className="flex min-h-18 flex-wrap items-center justify-between gap-3 py-3">
@@ -45,6 +48,32 @@ const Header = () => {
               <Search className="size-4" />
             </Button>
           </form>
+
+          <div className="flex items-center gap-1">
+            {!isAuthenticated ? (
+              <Button
+                asChild
+                size="sm"
+                className="rounded-full border border-(--earth-forest)/30 bg-(--earth-forest) px-4 text-sm font-semibold text-white shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] hover:bg-(--earth-forest)/90"
+              >
+                <Link href="/login?returnTo=/">Login</Link>
+              </Button>
+            ) : null}
+
+            {isAuthenticated ? (
+              <>
+                <form action="/api/auth/logout" method="POST">
+                  <Button
+                    type="submit"
+                    size="sm"
+                    className="rounded-full border border-(--earth-forest)/30 bg-(--earth-forest) px-4 text-sm font-semibold text-white shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] hover:bg-(--earth-forest)/90"
+                  >
+                    Logout
+                  </Button>
+                </form>
+              </>
+            ) : null}
+          </div>
         </div>
       </Container>
     </header>

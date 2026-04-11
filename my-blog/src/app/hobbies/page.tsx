@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { isAdminAuthenticated } from "@/lib/admin-auth"
 import { getPostsByCategory } from "@/lib/blog-posts"
 
 export const metadata = {
@@ -31,6 +32,7 @@ const hobbies = [
 ]
 
 export default async function HobbiesPage() {
+  const isAuthenticated = await isAdminAuthenticated()
   const posts = await getPostsByCategory("Hobbies")
 
   return (
@@ -70,7 +72,14 @@ export default async function HobbiesPage() {
       <Separator />
 
       <section className="space-y-4">
-        <h2 className="text-3xl font-semibold tracking-tight text-(--earth-ink)">Hobby blog updates</h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-3xl font-semibold tracking-tight text-(--earth-ink)">Hobby blog updates</h2>
+          {isAuthenticated ? (
+            <Button asChild size="sm" className="bg-(--earth-forest) text-white hover:bg-(--earth-forest)/90">
+              <Link href="/create?category=Hobbies">Create post</Link>
+            </Button>
+          ) : null}
+        </div>
         <p className="text-sm text-(--earth-muted)">
           New notes from firefighting, fishing, gaming, and everything else I do on the side.
         </p>
