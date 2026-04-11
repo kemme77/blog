@@ -26,7 +26,10 @@
 
 Next Steps:
 
-Auth.js + Prisma Adapter einbauen
-User- und Session-Modelle ergänzen
-Bestehenden Admin-Login auf DB-User umstellen
-Rollenmodell (Admin/Editor) hinzufügen
+- Auth.js + Prisma Adapter eingebaut
+- User- und Session-Modelle ergänzt
+- Admin-Login auf DB-User umgestellt
+- Rollenmodell (Admin/Editor) hinzugefügt
+
+Optional als nächster Schritt:
+- Rechte für Admin vs. Editor genauer festlegen

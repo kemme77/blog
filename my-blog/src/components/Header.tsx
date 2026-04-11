@@ -4,6 +4,7 @@ import { Search } from "lucide-react";
 import Container from "./Container";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import LogoutButton from "./LogoutButton";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 
 const navItems = [
@@ -60,19 +61,7 @@ const Header = async () => {
               </Button>
             ) : null}
 
-            {isAuthenticated ? (
-              <>
-                <form action="/api/auth/logout" method="POST">
-                  <Button
-                    type="submit"
-                    size="sm"
-                    className="rounded-full border border-(--earth-forest)/30 bg-(--earth-forest) px-4 text-sm font-semibold text-white shadow-[0_8px_24px_-14px_rgba(0,0,0,0.55)] hover:bg-(--earth-forest)/90"
-                  >
-                    Logout
-                  </Button>
-                </form>
-              </>
-            ) : null}
+            {isAuthenticated ? <LogoutButton /> : null}
           </div>
         </div>
       </Container>
