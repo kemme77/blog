@@ -1,6 +1,6 @@
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft, Camera, MapPinned, Mountain, Route } from "lucide-react"
+import { ArrowLeft, CalendarDays, Camera, MapPinned, Route, Star } from "lucide-react"
 
 import travelPhoto from "@/images/EnkelTrick.png"
 
@@ -8,31 +8,21 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { getPostsByCategory } from "@/lib/blog-posts"
 
 export const metadata = {
   title: "Travel | Kemme's Blog",
   description: "Short travel reports with photos and highlights.",
 }
 
-const trips = [
-  {
-    title: "Weekend escape",
-    place: "Somewhere calm and scenic",
-    text: "A short break with fresh air, a slower rhythm, and a few moments worth remembering.",
-  },
-  {
-    title: "City trip",
-    place: "A place full of movement and energy",
-    text: "Food, walking routes, and the kind of impressions that only a city can create.",
-  },
-  {
-    title: "Nature route",
-    place: "Mountains, water, and open space",
-    text: "One of those trips where the landscape becomes the main memory.",
-  },
+const upcomingTrips = [
+  { destination: "Northern coastline", focus: "Sea route and sunset spots", period: "Summer 2026" },
+  { destination: "Mountain region", focus: "Hiking trail and photo points", period: "Autumn 2026" },
 ]
 
 export default function TravelPage() {
+  const posts = getPostsByCategory("Travel")
+
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 pb-20 pt-12 md:px-10">
       <section className="rounded-3xl border border-(--earth-border) bg-(--earth-panel) p-8 md:p-12">
@@ -68,7 +58,7 @@ export default function TravelPage() {
               <p className="text-sm font-semibold uppercase tracking-[0.18em]">Featured photo</p>
             </div>
             <p className="mt-3 text-sm leading-relaxed text-(--earth-muted)">
-              Replace this image with one of your own travel photos whenever you are ready.
+              Replace this with your own travel photo highlights anytime.
             </p>
           </CardContent>
         </Card>
@@ -81,13 +71,13 @@ export default function TravelPage() {
                 <CardTitle>Travel notes</CardTitle>
               </div>
               <CardDescription>
-                A quick structure for short reports from future trips.
+                  Blog-post format: short story, route, rating, and selected photos.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3 text-sm leading-relaxed text-(--earth-muted)">
-              <p>What I did.</p>
-              <p>What stood out.</p>
-              <p>What I would recommend.</p>
+                <p>Where I went and what the route looked like.</p>
+                <p>How I would rate the experience.</p>
+                <p>What I would recommend for a next visit.</p>
             </CardContent>
           </Card>
 
@@ -95,33 +85,53 @@ export default function TravelPage() {
             <CardHeader>
               <div className="flex items-center gap-3 text-(--earth-forest)">
                 <MapPinned className="size-5" />
-                <CardTitle>Future posts</CardTitle>
+                <CardTitle>Outlook: upcoming trips</CardTitle>
               </div>
-              <CardDescription>
-                The travel page is ready for separate reports from each place.
-              </CardDescription>
+              <CardDescription>The next destinations already planned.</CardDescription>
             </CardHeader>
+            <CardContent className="space-y-3 text-sm text-(--earth-muted)">
+              {upcomingTrips.map((trip) => (
+                <div key={trip.destination} className="rounded-xl border border-(--earth-border) px-3 py-2">
+                  <p className="font-semibold text-(--earth-ink)">{trip.destination}</p>
+                  <p>{trip.focus}</p>
+                  <p className="text-xs uppercase tracking-wide">{trip.period}</p>
+                </div>
+              ))}
+            </CardContent>
           </Card>
         </div>
       </section>
 
       <Separator />
 
-      <section className="grid gap-5 md:grid-cols-3">
-        {trips.map((trip) => (
-          <Card key={trip.title} className="h-full">
-            <CardHeader>
-              <div className="flex items-center gap-3 text-(--earth-forest)">
-                <Mountain className="size-5" />
-                <CardTitle>{trip.title}</CardTitle>
+      <section className="space-y-4">
+        <h2 className="text-3xl font-semibold tracking-tight text-(--earth-ink)">Travel blog posts</h2>
+        <p className="text-sm text-(--earth-muted)">
+          Each entry includes a route, rating, and photo context.
+        </p>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          {posts.map((post) => (
+            <Card key={post.id} className="h-full overflow-hidden">
+              <div className="relative aspect-[16/10] w-full bg-(--earth-stone)">
+                <Image src={travelPhoto} alt={post.photoLabel ?? "Travel image"} fill className="object-cover" />
               </div>
-              <CardDescription>{trip.place}</CardDescription>
+            <CardHeader>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <CardTitle className="text-xl">{post.title}</CardTitle>
+                <Badge className="text-[11px]">Travel Post</Badge>
+              </div>
+              <CardDescription>{post.summary}</CardDescription>
             </CardHeader>
-            <CardContent>
-              <p className="text-sm leading-relaxed text-(--earth-muted)">{trip.text}</p>
-            </CardContent>
-          </Card>
-        ))}
+              <CardContent className="space-y-2 text-sm text-(--earth-muted)">
+                <p className="inline-flex items-center gap-1"><CalendarDays className="size-4" />{post.date}</p>
+                <p className="inline-flex items-center gap-1"><Route className="size-4" />{post.route}</p>
+                <p className="inline-flex items-center gap-1"><Star className="size-4" />Rating: {post.rating}/5</p>
+                <p className="rounded-full border border-(--earth-border) px-2 py-0.5">{post.tags.join(" • ")}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </section>
     </main>
   )

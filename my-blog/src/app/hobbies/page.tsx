@@ -1,9 +1,11 @@
 import Link from "next/link"
-import { ArrowLeft, Fish, FlameKindling, Gamepad2, ShieldAlert } from "lucide-react"
+import { ArrowLeft, CalendarDays, Fish, FlameKindling, Gamepad2, ShieldAlert } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import { getPostsByCategory } from "@/lib/blog-posts"
 
 export const metadata = {
   title: "Hobbies | Kemme's Blog",
@@ -29,6 +31,8 @@ const hobbies = [
 ]
 
 export default function HobbiesPage() {
+  const posts = getPostsByCategory("Hobbies")
+
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 pb-20 pt-12 md:px-10">
       <section className="rounded-3xl border border-(--earth-border) bg-(--earth-panel) p-8 md:p-12">
@@ -61,6 +65,33 @@ export default function HobbiesPage() {
             </CardHeader>
           </Card>
         ))}
+      </section>
+
+      <Separator />
+
+      <section className="space-y-4">
+        <h2 className="text-3xl font-semibold tracking-tight text-(--earth-ink)">Hobby blog updates</h2>
+        <p className="text-sm text-(--earth-muted)">
+          New notes from firefighting, fishing, gaming, and everything else I do on the side.
+        </p>
+
+        <div className="grid gap-4">
+          {posts.map((post) => (
+            <Card key={post.id}>
+              <CardHeader>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <CardTitle className="text-xl">{post.title}</CardTitle>
+                  <Badge className="text-[11px]">Hobby Post</Badge>
+                </div>
+                <CardDescription>{post.summary}</CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-wrap items-center gap-3 text-sm text-(--earth-muted)">
+                <span className="inline-flex items-center gap-1"><CalendarDays className="size-4" />{post.date}</span>
+                <span className="rounded-full border border-(--earth-border) px-2 py-0.5">{post.tags.join(" • ")}</span>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </section>
 
       <section className="grid gap-5 lg:grid-cols-[1fr_0.9fr]">

@@ -1,10 +1,11 @@
 import Link from "next/link"
-import { ArrowLeft, BriefcaseBusiness, Goal, Mountain, Sparkles } from "lucide-react"
+import { ArrowLeft, BriefcaseBusiness, CalendarDays, Goal, Mountain } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { getPostsByCategory } from "@/lib/blog-posts"
 
 export const metadata = {
   title: "Career | Kemme's Blog",
@@ -13,20 +14,22 @@ export const metadata = {
 
 const milestones = [
   {
-    title: "Right now",
-    text: "I am documenting what I am learning, what is working, and what I want to improve next.",
+    title: "Current status",
+    text: "I am focused on learning consistency, practical delivery, and clear communication.",
   },
   {
-    title: "Next step",
-    text: "I want to take on more responsibility, sharpen my skills, and work on projects that matter.",
+    title: "Near-term target",
+    text: "Take on stronger project ownership and improve decision-making in daily work.",
   },
   {
-    title: "Long term",
-    text: "My goal is a role that combines growth, trust, and clear room to keep developing.",
+    title: "Long-term direction",
+    text: "Build toward a trusted role with growth potential and meaningful responsibility.",
   },
 ]
 
 export default function CareerPage() {
+  const posts = getPostsByCategory("Career")
+
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 pb-20 pt-12 md:px-10">
       <section className="rounded-3xl border border-(--earth-border) bg-(--earth-panel) p-8 md:p-12">
@@ -64,6 +67,31 @@ export default function CareerPage() {
 
       <Separator />
 
+      <section className="space-y-4">
+        <h2 className="text-3xl font-semibold tracking-tight text-(--earth-ink)">Career blog updates</h2>
+        <p className="text-sm text-(--earth-muted)">
+          Short updates about progress, goals, and changes in direction.
+        </p>
+
+        <div className="grid gap-4">
+          {posts.map((post) => (
+            <Card key={post.id}>
+              <CardHeader>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <CardTitle className="text-xl">{post.title}</CardTitle>
+                  <Badge className="text-[11px]">Career Post</Badge>
+                </div>
+                <CardDescription>{post.summary}</CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-wrap items-center gap-3 text-sm text-(--earth-muted)">
+                <span className="inline-flex items-center gap-1"><CalendarDays className="size-4" />{post.date}</span>
+                <span className="rounded-full border border-(--earth-border) px-2 py-0.5">{post.tags.join(" • ")}</span>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+
       <section className="grid gap-5 lg:grid-cols-[0.95fr_1.05fr]">
         <Card>
           <CardHeader>
@@ -81,10 +109,7 @@ export default function CareerPage() {
 
         <Card>
           <CardHeader>
-            <div className="flex items-center gap-3 text-(--earth-forest)">
-              <Sparkles className="size-5" />
-              <CardTitle>Future direction</CardTitle>
-            </div>
+            <CardTitle>Future direction</CardTitle>
             <CardDescription>
               A simple outline of where I would like this path to lead.
             </CardDescription>

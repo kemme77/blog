@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowLeft, BadgeCheck, HeartHandshake, MapPin, UserRound } from "lucide-react"
+import { ArrowLeft, BadgeCheck, HeartHandshake, Link as LinkIcon, MapPin, UserRound } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -16,6 +16,12 @@ const facts = [
   { label: "Interests", value: "Career growth, hobbies, travel, and technology" },
   { label: "Location", value: "To be added" },
   { label: "Mindset", value: "Stay curious, stay practical, keep improving" },
+]
+
+const socialLinks = [
+  { label: "LinkedIn", href: "https://www.linkedin.com" },
+  { label: "GitHub", href: "https://github.com" },
+  { label: "Instagram", href: "https://www.instagram.com" },
 ]
 
 export default function ProfilePage() {
@@ -81,17 +87,42 @@ export default function ProfilePage() {
 
       <Separator />
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-3 text-(--earth-forest)">
-            <MapPin className="size-5" />
-            <CardTitle>What visitors should expect</CardTitle>
-          </div>
-          <CardDescription>
-            Short stories, honest updates, and a consistent visual style.
-          </CardDescription>
-        </CardHeader>
-      </Card>
+      <section className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-3 text-(--earth-forest)">
+              <MapPin className="size-5" />
+              <CardTitle>Profile details</CardTitle>
+            </div>
+            <CardDescription>
+              This section stays informational only, without blog entries.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="text-sm leading-relaxed text-(--earth-muted)">
+            I use this page as a quick overview for visitors who want to know who I am
+            and what themes they will find in the blog.
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-3 text-(--earth-forest)">
+              <LinkIcon className="size-5" />
+              <CardTitle>Social media</CardTitle>
+            </div>
+            <CardDescription>
+              Connect with me outside the blog.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-2">
+            {socialLinks.map((social) => (
+              <Button key={social.label} asChild variant="outline" className="border-(--earth-border) bg-transparent hover:bg-(--earth-stone)">
+                <Link href={social.href} target="_blank" rel="noreferrer">{social.label}</Link>
+              </Button>
+            ))}
+          </CardContent>
+        </Card>
+      </section>
     </main>
   )
 }
