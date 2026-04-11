@@ -1,4 +1,4 @@
-import { createHmac, timingSafeEqual } from "node:crypto"
+import { createHash, createHmac, timingSafeEqual } from "node:crypto"
 
 import { cookies } from "next/headers"
 
@@ -6,15 +6,27 @@ const COOKIE_NAME = "blog-admin-session"
 const SESSION_TTL_SECONDS = 60 * 60 * 8
 
 function getSecret(): string {
-  return process.env.BLOG_ADMIN_SECRET ?? "dev-secret-change-me"
+  const secret = process.env.BLOG_ADMIN_SECRET?.trim()
+  if (!secret) {
+    throw new Error("Missing BLOG_ADMIN_SECRET")
+  }
+  return secret
 }
 
 function getAdminUsername(): string {
   return process.env.BLOG_ADMIN_USERNAME ?? "admin"
 }
 
-function getAdminPassword(): string {
-  return process.env.BLOG_ADMIN_PASSWORD ?? "admin123"
+function getAdminPasswordHash(): string {
+  const passwordHash = process.env.BLOG_ADMIN_PASSWORD_HASH?.trim()
+  if (!passwordHash) {
+    throw new Error("Missing BLOG_ADMIN_PASSWORD_HASH")
+  }
+  return passwordHash
+}
+
+function hashPassword(password: string): string {
+  return createHash("sha256").update(password).digest("hex")
 }
 
 function sign(value: string): string {
@@ -33,7 +45,7 @@ function safeEquals(a: string, b: string): boolean {
 }
 
 export function verifyCredentials(username: string, password: string): boolean {
-  return safeEquals(username, getAdminUsername()) && safeEquals(password, getAdminPassword())
+  return safeEquals(username, getAdminUsername()) && safeEquals(hashPassword(password), getAdminPasswordHash())
 }
 
 export function createSessionToken(username: string): string {

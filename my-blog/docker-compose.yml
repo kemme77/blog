@@ -3,11 +3,11 @@ services:
     image: mysql:8.0
     container_name: app-infrastructure_mysql
     restart: unless-stopped
+    env_file:
+      - .env.local
     environment:
-      MYSQL_ROOT_PASSWORD: Password123
       MYSQL_DATABASE: app-infrastructure
       MYSQL_USER: kemme
-      MYSQL_PASSWORD: Password123
     volumes:
       - mysql_data:/var/lib/mysql
     ports:
@@ -21,10 +21,11 @@ services:
     restart: unless-stopped
     depends_on:
       - mysql
+    env_file:
+      - .env.local
     environment:
       PMA_HOST: mysql
       PMA_PORT: 3306
-      MYSQL_ROOT_PASSWORD: Password123
     ports:
       - "8080:80"
     networks:

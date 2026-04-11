@@ -30,7 +30,11 @@ docker compose up -d
 
 ```env
 DATABASE_URL="mysql://kemme:Password123@localhost:3306/app-infrastructure"
+MYSQL_ROOT_PASSWORD="Password123"
+MYSQL_PASSWORD="Password123"
 ```
+
+`docker compose up -d` reads the MySQL credentials from `.env.local`, so the password is no longer hardcoded in `docker-compose.yml`.
 
 3. Generate Prisma client and sync schema:
 
