@@ -8,6 +8,16 @@ interface RateLimitEntry {
   resetTime: number
 }
 
+type HeaderSource =
+  | Headers
+  | Request
+  | { headers?: Headers | Record<string, string | string[] | undefined> }
+  | Record<string, string | string[] | undefined>
+
+function isHeaderRecord(value: unknown): value is Record<string, string | string[] | undefined> {
+  return typeof value === "object" && value !== null && !(value instanceof Headers)
+}
+
 const attemptMap = new Map<string, RateLimitEntry>()
 
 const LIMIT = 10 // max attempts
@@ -98,9 +108,59 @@ export function getRateLimitStatus(
 /**
  * Try to extract client IP from various headers
  */
-export function getClientIp(credentials?: any): string {
-  // Fallback to a generic identifier
-  // In a real app, you'd extract this from request headers via middleware
-  return credentials?.ip || "0.0.0.0"
+function readHeaderValue(source: HeaderSource, key: string): string | undefined {
+  if (source instanceof Request) {
+    return source.headers.get(key) ?? undefined
+  }
+
+  if (source instanceof Headers) {
+    return source.get(key) ?? undefined
+  }
+
+  const candidateHeaders = "headers" in source ? source.headers : source
+  if (!candidateHeaders) {
+    return undefined
+  }
+
+  if (candidateHeaders instanceof Headers) {
+    return candidateHeaders.get(key) ?? undefined
+  }
+
+  if (!isHeaderRecord(candidateHeaders)) {
+    return undefined
+  }
+
+  const raw = candidateHeaders[key] ?? candidateHeaders[key.toLowerCase()]
+  if (!raw) {
+    return undefined
+  }
+
+  return Array.isArray(raw) ? raw[0] : raw
+}
+
+export function getClientIp(input?: HeaderSource): string {
+  if (!input) {
+    return "0.0.0.0"
+  }
+
+  const forwardedFor = readHeaderValue(input, "x-forwarded-for")
+  if (forwardedFor) {
+    const firstForwarded = forwardedFor.split(",")[0]?.trim()
+    if (firstForwarded) {
+      return firstForwarded
+    }
+  }
+
+  const realIp = readHeaderValue(input, "x-real-ip")?.trim()
+  if (realIp) {
+    return realIp
+  }
+
+  const vercelForwarded = readHeaderValue(input, "x-vercel-forwarded-for")?.trim()
+  if (vercelForwarded) {
+    return vercelForwarded
+  }
+
+  return "0.0.0.0"
 }
 

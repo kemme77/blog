@@ -14,7 +14,7 @@ function readCategory(value: string): BlogCategory {
 export async function POST(request: Request) {
   const authenticated = await isAdminAuthenticated()
   if (!authenticated) {
-    return NextResponse.redirect(new URL("/login", request.url))
+    return NextResponse.redirect(new URL("/login", request.url), { status: 303 })
   }
 
   const formData = await request.formData()
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
   const categoryRaw = String(formData.get("category") ?? "").trim()
 
   if (!slug) {
-    return NextResponse.redirect(new URL("/", request.url))
+    return NextResponse.redirect(new URL("/", request.url), { status: 303 })
   }
 
   await deletePost(slug)
@@ -38,5 +38,5 @@ export async function POST(request: Request) {
   const fallback = categoryRaw ? getCategoryPath(readCategory(categoryRaw)) : "/"
   const destination = returnTo.startsWith("/") ? returnTo : fallback
 
-  return NextResponse.redirect(new URL(destination, request.url))
+  return NextResponse.redirect(new URL(destination, request.url), { status: 303 })
 }

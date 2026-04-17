@@ -8,7 +8,7 @@ import { getClientIp, getRateLimitStatus } from "@/lib/rateLimit"
  */
 export async function POST(request: NextRequest) {
   try {
-    const ipAddress = getClientIp()
+    const ipAddress = getClientIp(request)
     const status = getRateLimitStatus(ipAddress)
 
     return NextResponse.json(status)

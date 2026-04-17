@@ -13,8 +13,14 @@ Fixed missing Vercel environment variables for non-production environments, sync
 - Verified `DATABASE_URL` exists in Production/Development/Preview.
 - Synced admin user into Development and Production databases.
 - Copied existing blog posts from Production database into Development database.
+- Added a Prisma runtime datasource fallback in `src/lib/prisma.ts`:
+	- Prefer `DATABASE_URL` when valid for hosted runtime.
+	- Fall back to `DB_POSTGRES_PRISMA_URL` / `DB_DATABASE_URL` on Vercel.
+- Triggered a fresh production deployment after environment/runtime fixes.
 
 ## Validation
 - Development DB check: `posts=7`, `admins=1`, `users=1`.
 - Production DB check: `posts=7`, `admins=1`, `users=1`.
 - Vercel env listing shows required auth + database variables in Production, Development, and Preview.
+- Production runtime no longer logs Prisma localhost connection errors.
+- Production pages render post identifiers again (for example: `weekend-lakeside-route`, `fire-brigade-teamwork`, and multiple `Career Post` markers).

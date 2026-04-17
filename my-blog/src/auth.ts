@@ -2,6 +2,7 @@ import NextAuth, { type NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import { compare } from "bcryptjs"
+import { type UserRole } from "@prisma/client"
 
 import { prisma } from "@/lib/prisma"
 import {
@@ -27,13 +28,26 @@ function getAdminPasswordHash(): string {
   return passwordHash
 }
 
+function getAuthSecret(): string {
+  const secret =
+    process.env.NEXTAUTH_SECRET?.trim() ||
+    process.env.AUTH_SECRET?.trim() ||
+    process.env.BLOG_ADMIN_SECRET?.trim()
+
+  if (!secret) {
+    throw new Error("Missing NEXTAUTH_SECRET (or AUTH_SECRET / BLOG_ADMIN_SECRET fallback)")
+  }
+
+  return secret
+}
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
     maxAge: 24 * 60 * 60, // 24 hours
   },
-  secret: process.env.BLOG_ADMIN_SECRET,
+  secret: getAuthSecret(),
   pages: {
     signIn: "/login",
   },
@@ -43,10 +57,10 @@ export const authOptions: NextAuthOptions = {
         username: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, request) {
         const username = String(credentials?.username ?? "").trim()
         const password = String(credentials?.password ?? "")
-        const ipAddress = getClientIp(credentials)
+        const ipAddress = getClientIp(request)
 
         if (!username || !password) {
           if (username) {
@@ -122,7 +136,7 @@ export const authOptions: NextAuthOptions = {
           image: user.image,
           username: user.username,
           role: user.role,
-        } as any
+        }
       },
     }),
   ],
@@ -139,7 +153,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.id as string
         session.user.username = token.username as string
-        session.user.role = token.role as any
+        session.user.role = (token.role as UserRole | undefined) ?? "ADMIN"
       }
       return session
     },
