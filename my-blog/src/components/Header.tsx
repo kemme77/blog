@@ -1,21 +1,24 @@
-import Link from "next/link";
-import { Search } from "lucide-react";
+"use client"
 
-import Container from "./Container";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import LogoutButton from "./LogoutButton";
-import { isAdminAuthenticated } from "@/lib/admin-auth";
+import Link from "next/link"
+import { Search } from "lucide-react"
+import { useSession } from "next-auth/react"
+
+import Container from "./Container"
+import { Button } from "./ui/button"
+import { Input } from "./ui/input"
+import LogoutButton from "./LogoutButton"
 
 const navItems = [
   { label: "Career", href: "/career" },
   { label: "Hobbies", href: "/hobbies" },
   { label: "Travel", href: "/travel" },
   { label: "Profile", href: "/profile" },
-];
+]
 
-const Header = async () => {
-  const isAuthenticated = await isAdminAuthenticated()
+export default function Header() {
+  const { status } = useSession()
+  const isAuthenticated = status === "authenticated"
 
   return (
     <header className="sticky top-0 z-50 border-b border-(--earth-border) bg-(--earth-bg)/95 backdrop-blur-sm">
@@ -66,7 +69,5 @@ const Header = async () => {
         </div>
       </Container>
     </header>
-  );
-};
-
-export default Header
+  )
+}

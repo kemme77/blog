@@ -9,6 +9,8 @@ import LoginForm from "@/components/LoginForm"
 
 type SearchParams = Promise<{ returnTo?: string }>
 
+export const dynamic = "force-dynamic"
+
 export const metadata = {
   title: "Login | Kemme's Blog",
   description: "Login to manage blog posts directly on the website.",

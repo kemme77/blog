@@ -16,11 +16,11 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## Database Setup (Prisma + MySQL)
+## Database Setup (Prisma + PostgreSQL)
 
-The blog posts are now stored in MySQL via Prisma.
+The blog posts are now stored in PostgreSQL via Prisma.
 
-1. Start MySQL (from this project directory):
+1. Start PostgreSQL (from this project directory):
 
 ```bash
 docker compose up -d
@@ -29,16 +29,19 @@ docker compose up -d
 2. Ensure your local env file exists (`.env.local`):
 
 ```env
-DATABASE_URL="mysql://<db-user>:<db-password>@localhost:3306/app-infrastructure"
-MYSQL_ROOT_PASSWORD="<strong-root-password>"
-MYSQL_PASSWORD="<strong-app-password>"
+DATABASE_URL="postgresql://<db-user>:<db-password>@localhost:5433/app-infrastructure"
+POSTGRES_DB="app-infrastructure"
+POSTGRES_USER="<db-user>"
+POSTGRES_PASSWORD="<db-password>"
 BLOG_ADMIN_USERNAME="<username>"
 BLOG_ADMIN_PASSWORD_HASH="\$2b\$12\$..."
 BLOG_ADMIN_SECRET="<long-random-secret>"
 NEXTAUTH_URL="http://localhost:3000"
 ```
 
-`docker compose up -d` reads the MySQL credentials from `.env.local`, so the password is no longer hardcoded in `docker-compose.yml`.
+`docker compose up -d` reads the PostgreSQL credentials from `.env.local`, so the password is no longer hardcoded in `docker-compose.yml`.
+
+The local PostgreSQL container listens on host port `5433` to avoid conflicts with any existing Postgres installation on `5432`.
 
 3. Generate Prisma client and sync schema:
 
@@ -68,9 +71,9 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 ## Deploy on Vercel
 
-This app uses Next.js + Prisma + MySQL, so deployment needs a managed MySQL database (not local Docker MySQL).
+This app uses Next.js + Prisma + PostgreSQL, so deployment needs a managed PostgreSQL database.
 
-1. Create a managed MySQL database (for example Neon, PlanetScale, Railway, Aiven, or cloud-hosted MySQL).
+1. Create a managed PostgreSQL database (for example Neon, Vercel Postgres, Railway, Aiven, or Supabase).
 2. Run schema migration against that production database:
 
 ```bash
@@ -84,7 +87,7 @@ npx prisma db push
 6. In **Settings -> Environment Variables**, add:
 
 ```env
-DATABASE_URL="mysql://<user>:<password>@<host>:<port>/<database>"
+DATABASE_URL="postgresql://<user>:<password>@<host>:<port>/<database>?sslmode=require"
 BLOG_ADMIN_USERNAME="<your-admin-username>"
 BLOG_ADMIN_PASSWORD_HASH="<bcrypt-hash>"
 BLOG_ADMIN_SECRET="<long-random-secret>"
@@ -106,3 +109,4 @@ Notes:
 - `DATABASE_URL` is required at build time because Prisma config reads it.
 - Keep `NEXTAUTH_URL` aligned with your final Vercel domain.
 - Use a real bcrypt hash for `BLOG_ADMIN_PASSWORD_HASH`.
+- For the easiest free Vercel setup, Neon is the best fit.

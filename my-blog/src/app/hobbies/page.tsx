@@ -8,6 +8,8 @@ import { Separator } from "@/components/ui/separator"
 import { isAdminAuthenticated } from "@/lib/admin-auth"
 import { getPostsByCategory } from "@/lib/blog-posts"
 
+export const dynamic = "force-dynamic"
+
 export const metadata = {
   title: "Hobbies | Kemme's Blog",
   description: "Hobbies, side activities, and what I enjoy doing besides work.",

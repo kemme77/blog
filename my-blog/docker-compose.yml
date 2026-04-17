@@ -1,38 +1,21 @@
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: app-infrastructure_mysql
+  postgres:
+    image: postgres:16-alpine
+    container_name: app-infrastructure_postgres
     restart: unless-stopped
     env_file:
       - .env.local
     environment:
-      MYSQL_DATABASE: app-infrastructure
-      MYSQL_USER: kemme
+      POSTGRES_DB: app-infrastructure
     volumes:
-      - mysql_data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
     ports:
-      - "3306:3306"
-    networks:
-      - backend
-
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin:latest
-    container_name: app-infrastructure_phpmyadmin
-    restart: unless-stopped
-    depends_on:
-      - mysql
-    env_file:
-      - .env.local
-    environment:
-      PMA_HOST: mysql
-      PMA_PORT: 3306
-    ports:
-      - "8080:80"
+      - "5433:5432"
     networks:
       - backend
 
 volumes:
-  mysql_data:
+  postgres_data:
 
 networks:
   backend:

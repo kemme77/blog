@@ -12,6 +12,8 @@ import { createPost, type BlogCategory } from "@/lib/blog-posts"
 
 type SearchParams = Promise<{ category?: string }>
 
+export const dynamic = "force-dynamic"
+
 export const metadata = {
   title: "Create Post | Kemme's Blog",
   description: "Create a new blog post directly on the website.",

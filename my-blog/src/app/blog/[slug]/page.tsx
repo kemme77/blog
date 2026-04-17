@@ -17,6 +17,8 @@ import DeletePostForm from "@/components/DeletePostForm"
 import { isAdminAuthenticated } from "@/lib/admin-auth"
 import { getCategoryPath, getPostBySlug, type BlogCategory, updatePost } from "@/lib/blog-posts"
 
+export const dynamic = "force-dynamic"
+
 type Params = Promise<{ slug: string }>
 
 function parseList(raw: string): string[] {
