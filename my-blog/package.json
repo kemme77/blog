@@ -11,7 +11,18 @@
     "lint:fix": "eslint --fix",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:push": "prisma db push"
+    "prisma:push": "prisma db push",
+    "db:pull:dev": "npx vercel env pull .env.development.local",
+    "db:pull:prod": "npx vercel env pull .env.production.local --environment=production",
+    "db:push:local": "node scripts/prisma-env.mjs .env.local db push",
+    "db:push:dev": "node scripts/prisma-env.mjs .env.development.local db push",
+    "db:push:prod": "node scripts/prisma-env.mjs .env.production.local db push",
+    "db:check:local": "node scripts/db-status.mjs .env.local",
+    "db:check:dev": "node scripts/db-status.mjs .env.development.local",
+    "db:check:prod": "node scripts/db-status.mjs .env.production.local",
+    "db:admin:local": "node scripts/admin-sync.mjs .env.local",
+    "db:admin:dev": "node scripts/admin-sync.mjs .env.development.local",
+    "db:admin:prod": "node scripts/admin-sync.mjs .env.production.local"
   },
   "dependencies": {
     "@next-auth/prisma-adapter": "^1.0.7",
