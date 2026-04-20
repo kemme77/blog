@@ -17,6 +17,7 @@ const navItems = [
 export default function Header() {
   const { status } = useSession()
   const isAuthenticated = status === "authenticated"
+  const isLoading = status === "loading"
 
   return (
     <header className="sticky top-0 z-50 border-b border-(--earth-border) bg-(--earth-bg)/95 backdrop-blur-sm">
@@ -41,7 +42,7 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-1">
-            {!isAuthenticated ? (
+            {!isLoading && !isAuthenticated ? (
               <Button
                 asChild
                 size="sm"
@@ -51,7 +52,7 @@ export default function Header() {
               </Button>
             ) : null}
 
-            {isAuthenticated ? <LogoutButton /> : null}
+            {!isLoading && isAuthenticated ? <LogoutButton /> : null}
           </div>
         </div>
       </Container>
