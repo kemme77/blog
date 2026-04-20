@@ -73,6 +73,23 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 This app uses Next.js + Prisma + PostgreSQL, so deployment needs a managed PostgreSQL database.
 
+### Security checklist for Vercel incidents
+
+If Vercel publishes a security bulletin or contacts you about possible exposure, use the dedicated checklist in [docs/vercel-incident-response-checklist.md](docs/vercel-incident-response-checklist.md).
+
+The most important values to review immediately are:
+
+- `DATABASE_URL`
+- `BLOG_ADMIN_USERNAME`
+- `BLOG_ADMIN_PASSWORD_HASH`
+- `BLOG_ADMIN_SECRET`
+- `NEXTAUTH_SECRET`
+- `NEXTAUTH_URL`
+
+Also verify that Vercel Deployment Protection is set to Standard or stricter.
+
+### Regular deployment steps
+
 1. Create a managed PostgreSQL database (for example Neon, Vercel Postgres, Railway, Aiven, or Supabase).
 2. Run schema migration against that production database:
 
@@ -91,6 +108,7 @@ DATABASE_URL="postgresql://<user>:<password>@<host>:<port>/<database>?sslmode=re
 BLOG_ADMIN_USERNAME="<your-admin-username>"
 BLOG_ADMIN_PASSWORD_HASH="<bcrypt-hash>"
 BLOG_ADMIN_SECRET="<long-random-secret>"
+NEXTAUTH_SECRET="<long-random-secret>"
 NEXTAUTH_URL="https://<your-vercel-domain>"
 ```
 
