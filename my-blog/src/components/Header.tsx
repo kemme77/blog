@@ -1,12 +1,10 @@
 "use client"
 
 import Link from "next/link"
-import { Search } from "lucide-react"
 import { useSession } from "next-auth/react"
 
 import Container from "./Container"
 import { Button } from "./ui/button"
-import { Input } from "./ui/input"
 import LogoutButton from "./LogoutButton"
 
 const navItems = [
@@ -41,17 +39,6 @@ export default function Header() {
               </Button>
             ))}
           </nav>
-
-          <form action="/search" method="GET" className="flex w-full items-center gap-2 sm:w-auto sm:min-w-60 md:min-w-72">
-            <Input
-              name="q"
-              placeholder="Search blog posts..."
-              aria-label="Search blog posts"
-            />
-            <Button type="submit" size="sm" className="bg-(--earth-forest) text-white hover:bg-(--earth-forest)/90">
-              <Search className="size-4" />
-            </Button>
-          </form>
 
           <div className="flex items-center gap-1">
             {!isAuthenticated ? (

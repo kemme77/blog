@@ -1,22 +1,6 @@
-import path from "node:path"
-import { readdir, readFile } from "node:fs/promises"
-
 import { prisma } from "@/lib/prisma"
 
 export type BlogCategory = "Career" | "Hobbies" | "Travel"
-
-type BlogPostFile = {
-  id: string
-  title: string
-  slug: string
-  category: BlogCategory
-  summary: string
-  content: string[]
-  tags: string[]
-  route?: string
-  rating?: number
-  photoLabel?: string
-}
 
 export type BlogPost = {
   id: string
@@ -43,10 +27,6 @@ type PostInput = {
   rating?: number
   photoLabel?: string
 }
-
-const POSTS_SEED_DIR = path.join(process.cwd(), "src/content/posts")
-
-let bootstrapPromise: Promise<void> | null = null
 
 function toDateString(value: Date): string {
   return value.toISOString().slice(0, 10)
@@ -101,52 +81,8 @@ function mapDbPost(post: {
   }
 }
 
-async function bootstrapPostsIfEmpty(): Promise<void> {
-  if (bootstrapPromise) {
-    return bootstrapPromise
-  }
-
-  bootstrapPromise = (async () => {
-    try {
-      const count = await prisma.blogPost.count()
-      if (count > 0) {
-        return
-      }
-
-      const files = await readdir(POSTS_SEED_DIR)
-      const postFiles = files.filter((file) => file.endsWith(".json"))
-
-      for (const file of postFiles) {
-        const raw = await readFile(path.join(POSTS_SEED_DIR, file), "utf-8")
-        const seed = JSON.parse(raw) as BlogPostFile
-
-        await prisma.blogPost.create({
-          data: {
-            title: seed.title,
-            slug: seed.slug,
-            category: seed.category,
-            summary: seed.summary,
-            content: seed.content,
-            tags: seed.tags,
-            route: seed.route,
-            rating: seed.rating,
-            photoLabel: seed.photoLabel,
-          },
-        })
-      }
-    } catch (error) {
-      // Do not fail page rendering if seeding or DB access is temporarily unavailable.
-      console.error("[posts] Bootstrap failed:", error)
-    }
-  })()
-
-  return bootstrapPromise
-}
-
 export async function getAllPosts(): Promise<BlogPost[]> {
   try {
-    await bootstrapPostsIfEmpty()
-
     const posts = await prisma.blogPost.findMany({
       orderBy: {
         updatedAt: "desc",
@@ -162,8 +98,6 @@ export async function getAllPosts(): Promise<BlogPost[]> {
 
 export async function getPostsByCategory(category: BlogCategory): Promise<BlogPost[]> {
   try {
-    await bootstrapPostsIfEmpty()
-
     const posts = await prisma.blogPost.findMany({
       where: {
         category,
@@ -182,8 +116,6 @@ export async function getPostsByCategory(category: BlogCategory): Promise<BlogPo
 
 export async function getPostBySlug(slug: string): Promise<BlogPost | undefined> {
   try {
-    await bootstrapPostsIfEmpty()
-
     const post = await prisma.blogPost.findUnique({
       where: {
         slug,
@@ -229,7 +161,7 @@ export async function createPost(input: PostInput): Promise<string> {
   return slug
 }
 
-export async function updatePost(previousSlug: string, input: PostInput): Promise<void> {
+export async function updatePost(previousSlug: string, input: PostInput): Promise<string> {
   const existing = await prisma.blogPost.findUnique({ where: { slug: previousSlug } })
   if (!existing) {
     throw new Error("Post not found")
@@ -263,6 +195,8 @@ export async function updatePost(previousSlug: string, input: PostInput): Promis
       photoLabel: input.photoLabel,
     },
   })
+
+  return nextSlug
 }
 
 export async function deletePost(slug: string): Promise<void> {

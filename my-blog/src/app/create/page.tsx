@@ -64,7 +64,6 @@ async function createPostAction(formData: FormData) {
   revalidatePath("/career")
   revalidatePath("/hobbies")
   revalidatePath("/travel")
-  revalidatePath("/search")
 
   redirect(`/blog/${slug}`)
 }

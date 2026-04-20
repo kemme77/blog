@@ -32,7 +32,6 @@ export async function POST(request: Request) {
   revalidatePath("/career")
   revalidatePath("/hobbies")
   revalidatePath("/travel")
-  revalidatePath("/search")
   revalidatePath(`/blog/${slug}`)
 
   const fallback = categoryRaw ? getCategoryPath(readCategory(categoryRaw)) : "/"

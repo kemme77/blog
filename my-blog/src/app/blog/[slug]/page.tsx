@@ -14,12 +14,14 @@ import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
 import DeletePostForm from "@/components/DeletePostForm"
+import PostEditSuccessNotice from "@/components/PostEditSuccessNotice"
 import { isAdminAuthenticated } from "@/lib/admin-auth"
 import { getCategoryPath, getPostBySlug, type BlogCategory, updatePost } from "@/lib/blog-posts"
 
 export const dynamic = "force-dynamic"
 
 type Params = Promise<{ slug: string }>
+type SearchParams = Promise<{ updated?: string }>
 
 function parseList(raw: string): string[] {
   return raw
@@ -53,7 +55,7 @@ async function updatePostAction(formData: FormData) {
 
   const previousSlug = String(formData.get("previousSlug") ?? "")
 
-  await updatePost(previousSlug, {
+  const slug = await updatePost(previousSlug, {
     title: String(formData.get("title") ?? ""),
     category: readCategory(formData.get("category")),
     summary: String(formData.get("summary") ?? ""),
@@ -64,20 +66,16 @@ async function updatePostAction(formData: FormData) {
     photoLabel: String(formData.get("photoLabel") ?? "") || undefined,
   })
 
-  const updated = await getPostBySlug(previousSlug)
-  const slug = updated?.slug ?? previousSlug
-
   revalidatePath("/")
   revalidatePath("/career")
   revalidatePath("/hobbies")
   revalidatePath("/travel")
-  revalidatePath("/search")
   revalidatePath(`/blog/${previousSlug}`)
   if (slug !== previousSlug) {
     revalidatePath(`/blog/${slug}`)
   }
 
-  redirect(`/blog/${slug}`)
+  redirect(`/blog/${slug}?updated=1`)
 }
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
@@ -96,10 +94,18 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   }
 }
 
-export default async function BlogPostPage({ params }: { params: Params }) {
+export default async function BlogPostPage({
+  params,
+  searchParams,
+}: {
+  params: Params
+  searchParams?: SearchParams
+}) {
   const resolved = await params
+  const query = (await searchParams) ?? {}
   const post = await getPostBySlug(resolved.slug)
   const isAuthenticated = await isAdminAuthenticated()
+  const showUpdatedMessage = query.updated === "1"
 
   if (!post) {
     notFound()
@@ -165,6 +171,8 @@ export default async function BlogPostPage({ params }: { params: Params }) {
         <section className="rounded-2xl border border-(--earth-border) bg-(--earth-panel) p-6 md:p-8">
           <h2 className="text-2xl font-semibold text-(--earth-ink)">Edit this post</h2>
           <p className="mt-2 text-sm text-(--earth-muted)">Changes are saved directly to your database.</p>
+
+          {showUpdatedMessage ? <PostEditSuccessNotice /> : null}
 
           <form action={updatePostAction} className="mt-5 grid gap-3 md:grid-cols-2">
             <input type="hidden" name="previousSlug" value={post.slug} />
